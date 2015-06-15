@@ -1,0 +1,10 @@
+.border {
+    padding-top: 10px;
+    border-top: 1px solid #DDD;
+    border-bottom: 1px solid #DDD;
+}
+
+.form-group.required label:after {
+    content: " *";
+    color: red;
+}

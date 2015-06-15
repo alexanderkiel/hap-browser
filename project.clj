@@ -18,7 +18,8 @@
                  [prismatic/plumbing "0.4.3"]
                  [prismatic/schema "0.4.2"]
                  [prismatic/om-tools "0.3.11" :scope "provided"]
-                 [hap-client-clj "0.1-SNAPSHOT"]]
+                 [hap-client-clj "0.1-SNAPSHOT"
+                  :exclusions [com.cognitect/transit-clj]]]
 
   :profiles {:dev
              {:source-paths ["dev"]

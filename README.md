@@ -2,6 +2,8 @@ __This software is ALPHA.__
 
 # HAP Browser
 
+[![Build Status](https://travis-ci.org/alexanderkiel/hap-browser.svg?branch=master)](https://travis-ci.org/alexanderkiel/hap-browser)
+
 Generic Hypermedia Application Protocol (HAP) UI.
 
 ## Build

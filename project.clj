@@ -1,5 +1,4 @@
-(defproject
-  hap-browser "0.1-SNAPSHOT"
+(defproject org.clojars.akiel/hap-browser "0.1-SNAPSHOT"
   :description "Generic Hypermedia Application Protocol (HAP) UI."
   :url "ttps://github.com/alexanderkiel/hap-browser"
   :license {:name "Eclipse Public License"
@@ -18,7 +17,7 @@
                  [prismatic/plumbing "0.4.3"]
                  [prismatic/schema "0.4.2"]
                  [prismatic/om-tools "0.3.11" :scope "provided"]
-                 [hap-client-clj "0.1-SNAPSHOT"
+                 [org.clojars.akiel/hap-client-clj "0.1-SNAPSHOT"
                   :exclusions [com.cognitect/transit-clj]]]
 
   :profiles {:dev

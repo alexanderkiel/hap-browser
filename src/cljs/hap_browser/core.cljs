@@ -227,6 +227,9 @@
 (defn build-class [init x & xs]
   (str/join " " (apply conj-when [init] x xs)))
 
+(defn value-updater [param]
+  #(om/update! param :value (util/target-value %)))
+
 (defcomponent query-group [[key param] _ {:keys [query-key]}]
   (render [_]
     (d/div {:class (build-class "form-group" (when-not (:optional param) "required"))}
@@ -237,7 +240,7 @@
                   :type "text"
                   :value (:value param)
                   :placeholder (str (:type param))
-                  :on-change #(om/update! param :value (util/target-value %))}))
+                  :on-change (value-updater param)}))
       (when-let [desc (:desc param)]
         (d/span {:class "help-block"} desc)))))
 

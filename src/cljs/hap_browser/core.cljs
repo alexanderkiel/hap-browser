@@ -20,7 +20,7 @@
 (defonce app-state
   (atom
     {:alert {}
-     :fetch-bar {}}))
+     :location-bar {}}))
 
 (defonce figwheel-reload-ch
   (let [ch (chan)]
@@ -47,7 +47,7 @@
       (update :embedded (partial into []))))
 
 (defn set-uri-and-doc! [app-state uri doc]
-  (om/transact! app-state #(-> (assoc-in % [:fetch-bar :uri] uri)
+  (om/transact! app-state #(-> (assoc-in % [:location-bar :uri] uri)
                                (assoc :doc (convert-doc doc)))))
 
 (defn fetch-loop
@@ -136,9 +136,9 @@
                 (alert! owner :danger e))
               (alert! owner :danger (str "Unexpected error: " e)))))))))
 
-;; ---- Fetch Bar -------------------------------------------------------------
+;; ---- Location Bar -------------------------------------------------------------
 
-(defcomponent fetch-bar [fetch-bar owner]
+(defcomponent location-bar [bar owner]
   (render [_]
     (d/form {:class "form-inline" :style {:margin-bottom "20px"}}
       (d/div {:class "form-group"}
@@ -147,10 +147,10 @@
                   :style {:width "400px"
                           :margin-right "10px"}
                   :placeholder "http://..."
-                  :value (:uri fetch-bar)
-                  :on-change #(om/update! fetch-bar :uri (util/target-value %))}))
+                  :value (:uri bar)
+                  :on-change #(om/update! bar :uri (util/target-value %))}))
       (d/button {:class "btn btn-default" :type "submit"
-                 :on-click (h (bus/publish! owner :fetch (hap/resource (:uri fetch-bar))))}
+                 :on-click (h (bus/publish! owner :fetch (hap/resource (:uri bar))))}
                 "Fetch"))))
 
 ;; ---- Data ------------------------------------------------------------------
@@ -325,7 +325,7 @@
     (d/div {:class "container"}
       (d/div {:class "row"}
         (d/div {:class "col-md-12"}
-          (om/build fetch-bar (:fetch-bar app-state))))
+          (om/build location-bar (:location-bar app-state))))
       (om/build alert/alert (:alert app-state))
       (when-let [doc (:doc app-state)]
         (om/build rep doc)))))

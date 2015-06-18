@@ -1,0 +1,20 @@
+language: clojure
+script: lein with-profile production compile :all
+deploy:
+  - provider: releases
+    api_key:
+      secure: kvygJ/E+YVe0sSuDZXaNYtn9DXxx8RovAvCDnsdMjEkWYwTfg8yUaMdlqvzzYojym/FKRr05RzSjClDbWJ8JnU4su2iMjOMuHzrhH8UALZQIM2yaxporVugh32OYSFZDYEA2oUwg0TRD7GPfb7aJYbkmu2AWb5ZubCwXQKSWauOFVnXY6xmCZl7Z+0xAZJBHFch7LyGXk2tc3sYd4qwSla46ysVj0AB5A5ymQbmrlg+QIk5jOBDB6/3Q947Lzq9tupjuMH7dB1bmYJ3vAXBbUfVpTtlAFYjnsUF0R5kJca2G2VGputKgIvU68OuTu+UgRTrMJBKY6W1cuP9NuWR1/dvNE6H8rW0mL5xBUwYtTkNlh6YkAAUkkIh0gEB2X4MpA73dVdNv3gwQoSFysGT0tO4kHlNwgGPYY1iuHJPkjMImxP4p3L3MpQa7+KyxOafKwIX9BkZW+jY6vcv+TGt0Wi3Lw4RSMq8twFes+GgI+OiBasg1myOqpWsaPkgSucm+2KE66EnA09tq5fO5fw0PxlDej6HHFvALrqmLrjQemfvUvw606pwC9UjELs3Ia8v7kKE2Vovd/7kA+KCe3Vds8s+T6f+dPhQLQOOSNIuR9MuXQo14mbjc4mJXv6GJC80OoJhCqDXodAqrnFM8WhXxDmUfAMFU/hV2QbF4tII5SSk=
+    file: resources/public/js/hap-browser.js
+    skip_cleanup: true
+    on:
+      tags: true
+  - provider: s3
+    access_key_id: AKIAJM2YQU4E2QVWVRIA
+    secret_access_key:
+      secure: XTN+HFee0/mQ7/GDEAtqNVClOfmMMQCdXTJZZFuMIf2Avin34rNjGaBRcrtili+PwC05yZsbHbVuUKIeBDknNVkoq7MKgATnn/QRXxns6b8Y5WmPNL0mGnMlaMgEkO/etpP+M/0SuAvAqAU/D8FLKlb8M4A83CK2Hmg80oInT8rdpe/NXPDWnfrYCn3sdHm2FMLtrSuz+EB3cCP3tBuFx65+tCC/pjWj2jSgdECAwHcw5DDm+T8E4EAeEnuBEyswn6ekDqO0VU91sn4g8i2fVqoBVQ53+VzCwHIb7FePWiPl8U1fpySNArmVzgcm/xizRU4F88Xi6cMO7w12swsskQYZhU0eLOHa6LOuQlGHaDLWiO4JecBmQMEEQ3aV/YhLz+6PLSSfVBetVWChURHYzTFSOi8Kv3YFVA4M61K4VjHiVYo3xR/f4qaAzw2nKjWZ2kGES9gHY9Vdq+WvgNETRaUoAxQgVk13v91dSH2oOPmPn8XS23WELBzugR7Om5IbLVBgOfTnH9I9Wmc9WeyXgRL/IYZEEN/4hbqfE9JcpVv/fUTRpXZoOZ7OM9MfkVt69hNUmpR+uku+1cW1ygc/yjAFqqj8+lkhMqzokMSaRMRjzPqsR/+QyWCAprtkAxOuvya8RbxSCsUtI3VwWIRjpQIdK6LpSYJs8erlEz0Wxj0=
+    bucket: hap-browser
+    local-dir: resources/public/js
+    skip_cleanup: true
+    region: eu-central-1
+    endpoint: s3.eu-central-1.amazonaws.com
+after_deploy: 'curl -H "Content-Type: application/json" --data ''{"build": true}'' -X POST https://registry.hub.docker.com/u/akiel/hap-browser/trigger/5e9627af-ef1c-4dd5-bf59-af2cdcbb2272/'

@@ -4,6 +4,7 @@
                    [hap-browser.macros :refer [h <?]])
   (:require [plumbing.core :refer [assoc-when map-vals conj-when]]
             [clojure.string :as str]
+            [goog.string :as gs]
             [cljs.core.async :refer [put! chan <!]]
             [goog.dom :as dom]
             [goog.events :as events]
@@ -138,6 +139,12 @@
 
 ;; ---- Location Bar -------------------------------------------------------------
 
+(defn- add-http [s]
+  (if (or (gs/startsWith s "http://")
+          (gs/startsWith s "https://"))
+    s
+    (str "http://" s)))
+
 (defcomponent location-bar [bar owner]
   (render [_]
     (d/form {:class "form-inline" :style {:margin-bottom "20px"}}
@@ -150,7 +157,7 @@
                   :value (:uri bar)
                   :on-change #(om/update! bar :uri (util/target-value %))}))
       (d/button {:class "btn btn-default" :type "submit"
-                 :on-click (h (bus/publish! owner :fetch (hap/resource (:uri bar))))}
+                 :on-click (h (bus/publish! owner :fetch (hap/resource (add-http (:uri bar)))))}
                 "Fetch"))))
 
 ;; ---- Data ------------------------------------------------------------------

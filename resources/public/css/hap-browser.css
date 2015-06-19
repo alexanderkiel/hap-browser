@@ -6,5 +6,5 @@
 
 .form-group.required label:after {
     content: " *";
-    color: red;
+    color: #a94442;
 }

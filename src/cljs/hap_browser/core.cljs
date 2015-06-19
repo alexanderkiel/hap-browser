@@ -14,7 +14,9 @@
             [hap-client.core :as hap]
             [hap-browser.event-bus :as bus]
             [hap-browser.util :as util]
-            [hap-browser.alert :as alert :refer [alert!]]))
+            [hap-browser.alert :as alert :refer [alert!]]
+            [schema.core :as s]
+            [hap-browser.validation :as v]))
 
 (enable-console-print!)
 
@@ -239,17 +241,27 @@
 
 (defcomponent query-group [[key param] _ {:keys [query-key]}]
   (render [_]
-    (d/div {:class (build-class "form-group" (when-not (:optional param) "required"))}
-      (d/label {:for (form-control-id query-key key)} (kw->label key))
-      (condp = (:type param)
-        (d/input {:class "form-control"
-                  :id (form-control-id query-key key)
-                  :type "text"
-                  :value (:value param)
-                  :placeholder (str (:type param))
-                  :on-change (value-updater param)}))
-      (when-let [desc (:desc param)]
-        (d/span {:class "help-block"} desc)))))
+    (let [schema (v/eval-schema (:type param))
+          value (:value param)
+          required (not (:optional param))
+          val-err (when-not (str/blank? value) (v/validate schema value))]
+      (d/div {:class (build-class "form-group"
+                                  (when required "required")
+                                  (when val-err "has-error"))}
+        (d/label {:class "control-label" :for (form-control-id query-key key)}
+                 (kw->label key))
+        (cond
+          :else
+          (d/input {:class "form-control"
+                    :id (form-control-id query-key key)
+                    :type "text"
+                    :value value
+                    :placeholder (s/explain schema)
+                    :on-change (value-updater param)}))
+        (when val-err
+          (d/span {:class "help-block"} (pr-str val-err)))
+        (when-let [desc (or (:desc param))]
+          (d/span {:class "help-block"} desc))))))
 
 (defn- build-query-groups [key query]
   (om/build-all query-group (:params query) {:opts {:query-key key}}))
@@ -338,5 +350,5 @@
         (om/build rep doc)))))
 
 (om/root app app-state
-  {:target (dom/getElement "app")
-   :shared {:event-bus (bus/init-bus)}})
+         {:target (dom/getElement "app")
+          :shared {:event-bus (bus/init-bus)}})

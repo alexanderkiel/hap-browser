@@ -16,6 +16,7 @@
             [hap-browser.util :as util]
             [hap-browser.alert :as alert :refer [alert!]]
             [schema.core :as s]
+            [schema.coerce :as c]
             [hap-browser.validation :as v]))
 
 (enable-console-print!)
@@ -237,17 +238,26 @@
   (str/join " " (apply conj-when [init] x xs)))
 
 (defn value-updater [param]
-  #(om/update! param :value (util/target-value %)))
+  (fn [x]
+    (let [raw-val (util/target-value x)
+          schema (v/eval-schema (:type param))
+          coercer (c/coercer schema c/string-coercion-matcher)
+          val (coercer raw-val)]
+      (println (s/explain schema))
+      (println val)
+      (om/update! param :raw-value raw-val)
+      (if (schema.utils/error? val)
+        (om/transact! param #(assoc % :error (schema.utils/error-val val)
+                                      :value nil))
+        (om/transact! param #(assoc % :error nil
+                                      :value val))))))
 
 (defcomponent query-group [[key param] _ {:keys [query-key]}]
   (render [_]
-    (let [schema (v/eval-schema (:type param))
-          value (:value param)
-          required (not (:optional param))
-          val-err (when-not (str/blank? value) (v/validate schema value))]
+    (let [required (not (:optional param))]
       (d/div {:class (build-class "form-group"
                                   (when required "required")
-                                  (when val-err "has-error"))}
+                                  (when (:error param) "has-error"))}
         (d/label {:class "control-label" :for (form-control-id query-key key)}
                  (kw->label key))
         (cond
@@ -255,11 +265,11 @@
           (d/input {:class "form-control"
                     :id (form-control-id query-key key)
                     :type "text"
-                    :value value
-                    :placeholder (s/explain schema)
+                    :value (:raw-value param)
+                    :placeholder (s/explain (v/eval-schema (:type param)))
                     :on-change (value-updater param)}))
-        (when val-err
-          (d/span {:class "help-block"} (pr-str val-err)))
+        (when-let [error (:error param)]
+          (d/span {:class "help-block"} (pr-str error)))
         (when-let [desc (or (:desc param))]
           (d/span {:class "help-block"} desc))))))
 

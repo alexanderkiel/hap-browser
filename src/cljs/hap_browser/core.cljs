@@ -16,8 +16,7 @@
             [hap-browser.util :as util]
             [hap-browser.alert :as alert :refer [alert!]]
             [schema.core :as s]
-            [schema.coerce :as c]
-            [hap-browser.validation :as v]))
+            [schema.coerce :as c]))
 
 (enable-console-print!)
 
@@ -240,11 +239,8 @@
 (defn value-updater [param]
   (fn [x]
     (let [raw-val (util/target-value x)
-          schema (v/eval-schema (:type param))
-          coercer (c/coercer schema c/string-coercion-matcher)
+          coercer (c/coercer @(:type param) c/string-coercion-matcher)
           val (coercer raw-val)]
-      (println (s/explain schema))
-      (println val)
       (om/update! param :raw-value raw-val)
       (if (schema.utils/error? val)
         (om/transact! param #(assoc % :error (schema.utils/error-val val)
@@ -266,7 +262,7 @@
                     :id (form-control-id query-key key)
                     :type "text"
                     :value (:raw-value param)
-                    :placeholder (s/explain (v/eval-schema (:type param)))
+                    :placeholder (s/explain @(:type param))
                     :on-change (value-updater param)}))
         (when-let [error (:error param)]
           (d/span {:class "help-block"} (pr-str error)))

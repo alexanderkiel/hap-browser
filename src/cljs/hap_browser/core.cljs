@@ -67,8 +67,10 @@
             (if-let [ex-data (ex-data e)]
               (if-let [doc (:body ex-data)]
                 (set-uri-and-doc! app-state nil doc)
-                (alert! owner :danger e))
-              (alert! owner :danger e))))))))
+                (alert! owner :danger (str (.-message e)
+                                           (when-let [status (:status ex-data)]
+                                             (str " Status was " status ".")))))
+              (alert! owner :danger (.-message e)))))))))
 
 (defn execute-query [query]
   (hap/execute query (map-vals :value (:params query))))

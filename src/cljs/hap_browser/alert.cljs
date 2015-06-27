@@ -12,6 +12,10 @@
 (defn close! [owner]
   (bus/publish! owner ::close {}))
 
+(defn close-button [owner]
+  (d/button {:type "button" :class "close" :on-click (h (close! owner))}
+            (d/span "\u00D7")))
+
 (defcomponent alert [alert owner]
   (will-mount [_]
     (bus/listen-on owner ::open
@@ -21,10 +25,8 @@
   (will-unmount [_]
     (bus/unlisten-all owner))
   (render [_]
-    (when (:level alert)
-      (d/div {:class (str "alert alert-" (name (:level alert))
-                          " alert-dismissible")
+    (when-let [level (some-> (:level alert) (name))]
+      (d/div {:class (str "alert alert-" level " alert-dismissible")
               :role "alert"}
-        (d/button {:type "button" :class "close"
-                   :on-click (h (close! owner))}
-                  (d/span "\u00D7")) (:msg alert)))))
+        (close-button owner)
+        (:msg alert)))))

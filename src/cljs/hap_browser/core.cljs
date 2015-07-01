@@ -70,7 +70,8 @@
                 (alert! owner :danger (str (.-message e)
                                            (when-let [status (:status ex-data)]
                                              (str " Status was " status ".")))))
-              (alert! owner :danger (.-message e)))))))))
+              (do (alert! owner :danger (.-message e))
+                  (println (.-stack e))))))))))
 
 (defn execute-query [query]
   (hap/execute query (map-vals :value (:params query))))

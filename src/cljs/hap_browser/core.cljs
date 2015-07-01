@@ -299,7 +299,7 @@
   (render [_]
     (d/div
       (d/h3 "Data")
-      (if-let [data (seq (dissoc doc :links :queries :forms :embedded :actions))]
+      (if-let [data (seq (dissoc doc :links :queries :forms :embedded :ops))]
         (om/build data-table data)
         (d/div {:class "border"}
           (d/p "No additional data available.")))
@@ -328,16 +328,16 @@
           (om/build query-list (:forms doc) {:opts {:topic :create}})
           (d/p "No forms available.")))
 
-      (d/h3 "Actions")
+      (d/h3 "Operations")
       (d/div {:class "border"}
         (d/p
-          (when (some #{:delete} (:actions doc))
+          (when (some #{:delete} (:ops doc))
             (d/button {:class "btn btn-primary"
                        :type "button"
                        :on-click (h (bus/publish! owner :delete (del-msg doc)))}
                       "Delete"))
-          (when-not (some #{:delete} (:actions doc))
-            "No actions available."))))))
+          (when-not (some #{:delete} (:ops doc))
+            "No operations available."))))))
 
 ;; ---- App -------------------------------------------------------------------
 

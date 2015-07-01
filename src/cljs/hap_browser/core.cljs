@@ -170,8 +170,8 @@
 (defcomponent data-row [[k v] _]
   (render [_]
     (d/tr
-      (d/td (str k))
-      (d/td (str v)))))
+      (d/td (pr-str k))
+      (d/td (if (string? v) v (pr-str v))))))
 
 (defcomponent data-table [data _]
   (render [_]

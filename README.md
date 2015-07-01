@@ -4,7 +4,7 @@ __This software is ALPHA.__
 
 [![Build Status](https://travis-ci.org/alexanderkiel/hap-browser.svg?branch=master)](https://travis-ci.org/alexanderkiel/hap-browser)
 
-Generic Hypermedia Application Protocol (HAP) UI.
+Generic [Hypermedia Application Protocol][4] (HAP) UI.
 
 ## Build
 
@@ -47,3 +47,4 @@ Distributed under the Eclipse Public License, the same as Clojure.
 [1]: <https://github.com/bhauman/lein-figwheel>
 [2]: <http://nginx.org/>
 [3]: <https://registry.hub.docker.com/u/akiel/hap-browser/>
+[4]: <https://github.com/alexanderkiel/hap-spec>

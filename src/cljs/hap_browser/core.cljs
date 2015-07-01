@@ -44,10 +44,10 @@
   because we need lists of things instead of maps for om."
   [doc]
   (-> doc
-      (update :links (partial into []))
+      (update :links vec)
       (update :queries convert-queries)
       (update :forms convert-queries)
-      (update :embedded (partial into []))))
+      (update :embedded vec)))
 
 (defn set-uri-and-doc! [app-state uri doc]
   (om/transact! app-state #(-> (assoc-in % [:location-bar :uri] uri)

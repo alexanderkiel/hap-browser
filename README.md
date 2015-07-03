@@ -23,7 +23,7 @@ The container exposes port 80.
 
 Start the container with the following command
 
-    docker run -p 80:80 akiel/hap-browser
+    docker run -d --name hap-browser -p 8080:80 akiel/hap-browser
 
 ## Develop
 

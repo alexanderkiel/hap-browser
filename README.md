@@ -22,6 +22,21 @@ CORS Headers on all other requests:
 
     Access-Control-Allow-Origin: *
     Access-Control-Expose-Headers: ETag, Location
+    
+## Hosted HAP Browser
+
+You can access a hosted version of HAP Browser here:
+
+    http://hap-browser.alexanderkiel.net
+    
+I'll try to keep it running and current. But it's not guarantied. Please ping me
+on Twitter `@alexander_kiel` if there are any issues.
+
+There is also an example application called [HAP ToDo][6] available. Just put
+    
+    http://hap-todo.alexanderkiel.net
+    
+into the address bar of HAP Browser.
 
 ## Build
 
@@ -66,3 +81,4 @@ Distributed under the Eclipse Public License, the same as Clojure.
 [3]: <https://registry.hub.docker.com/u/akiel/hap-browser/>
 [4]: <https://github.com/alexanderkiel/hap-spec>
 [5]: <https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS>
+[6]: <https://github.com/alexanderkiel/hap-todo>

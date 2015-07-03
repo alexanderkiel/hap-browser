@@ -6,6 +6,23 @@ __This software is ALPHA.__
 
 Generic [Hypermedia Application Protocol][4] (HAP) UI.
 
+The Hypermedia Application Protocol is self-describing opening the possibility
+for fully generic UI's suiting humans. With HAP Browser you can discover and 
+manipulate your API without the need to install anything additionally to your
+API. The only thing your API needs are the following [CORS][5] headers because
+HAP Browser is a Web App accessing your API which has a different origin.
+
+CORS Headers on OPTIONS requests:
+
+    Access-Control-Allow-Origin: *
+    Access-Control-Allow-Methods: GET, POST, PUT, DELETE
+    Access-Control-Allow-Headers: Accept, If-Match, Content-Type
+    
+CORS Headers on all other requests:
+
+    Access-Control-Allow-Origin: *
+    Access-Control-Expose-Headers: ETag, Location
+
 ## Build
 
 Currently a complete compilation including a production optimized ClojureScript
@@ -48,3 +65,4 @@ Distributed under the Eclipse Public License, the same as Clojure.
 [2]: <http://nginx.org/>
 [3]: <https://registry.hub.docker.com/u/akiel/hap-browser/>
 [4]: <https://github.com/alexanderkiel/hap-spec>
+[5]: <https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS>

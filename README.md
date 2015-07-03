@@ -8,8 +8,8 @@ Generic [Hypermedia Application Protocol][4] (HAP) UI.
 
 The Hypermedia Application Protocol is self-describing, opening the possibility
 for fully generic UI's suiting humans. With HAP Browser you can discover and 
-manipulate your API without the need to install anything additionally to your
-API. The only thing your API needs are the following [CORS][5] headers because
+manipulate your API without the need to install anything additional to your
+API. The only thing your API needs are the following [CORS][5] headers, because
 HAP Browser is a Web App accessing your API on a different origin.
 
 CORS Headers on OPTIONS requests:
@@ -25,12 +25,9 @@ CORS Headers on all other requests:
     
 ## Hosted HAP Browser
 
-You can access a hosted version of HAP Browser here:
-
-    http://hap-browser.alexanderkiel.net
-    
-I'll try to keep it running and current. But it's not guarantied. Please ping me
-on Twitter `@alexander_kiel` if there are any issues.
+There is a [hosted version of HAP Browser][7]. I'll try to keep it running and 
+current. But it's not guarantied. Please ping me on Twitter `@alexander_kiel` 
+if there are any issues.
 
 There is also an example application called [HAP ToDo][6] available. Just put
     
@@ -82,3 +79,4 @@ Distributed under the Eclipse Public License, the same as Clojure.
 [4]: <https://github.com/alexanderkiel/hap-spec>
 [5]: <https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS>
 [6]: <https://github.com/alexanderkiel/hap-todo>
+[7]: <http://hap-browser.alexanderkiel.net>

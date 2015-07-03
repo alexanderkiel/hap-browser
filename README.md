@@ -6,11 +6,11 @@ __This software is ALPHA.__
 
 Generic [Hypermedia Application Protocol][4] (HAP) UI.
 
-The Hypermedia Application Protocol is self-describing opening the possibility
+The Hypermedia Application Protocol is self-describing, opening the possibility
 for fully generic UI's suiting humans. With HAP Browser you can discover and 
 manipulate your API without the need to install anything additionally to your
 API. The only thing your API needs are the following [CORS][5] headers because
-HAP Browser is a Web App accessing your API which has a different origin.
+HAP Browser is a Web App accessing your API on a different origin.
 
 CORS Headers on OPTIONS requests:
 

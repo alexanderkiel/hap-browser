@@ -1,0 +1,7 @@
+{
+  "name": "hap-browser",
+  "root": "resources/public",
+  "routes": {
+    "**": "index.html"
+  }
+}

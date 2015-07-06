@@ -242,7 +242,7 @@
     (d/tr
       (d/td (pr-str key))
       (d/td
-        (if edit
+        (if (and edit type)
           (d/div {:class (build-class "form-group" (when error "has-error"))}
             (cond
               :else
@@ -376,7 +376,7 @@
    :up (get-in doc [:links :up])})
 
 (defn delete-button [owner doc]
-  (d/button {:class "btn btn-primary"
+  (d/button {:class "btn btn-danger pull-right"
              :type "button"
              :on-click (h (bus/publish! owner :delete (del-msg doc)))}
             "Delete"))
@@ -405,6 +405,8 @@
 (defcomponent rep [doc owner]
   (render [_]
     (d/div
+      (when (and (some #{:delete} (:ops doc)) (not (:edit (first (:data doc)))))
+        (delete-button owner doc))
       (when (:edit (first (:data doc)))
         (submit-button owner doc))
       (when (and (some #{:update} (:ops doc)) (get-in doc [:embedded :profile])
@@ -438,15 +440,7 @@
       (d/div {:class "border"}
         (if (seq (:forms doc))
           (om/build query-list (:forms doc) {:opts {:topic :create}})
-          (d/p "No forms available.")))
-
-      (d/h3 "Operations")
-      (d/div {:class "border"}
-        (d/p
-          (when (some #{:delete} (:ops doc))
-            (delete-button owner doc))
-          (when-not (some #{:delete} (:ops doc))
-            "No operations available."))))))
+          (d/p "No forms available."))))))
 
 ;; ---- App -------------------------------------------------------------------
 

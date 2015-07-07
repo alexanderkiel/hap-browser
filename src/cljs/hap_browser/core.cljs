@@ -48,11 +48,11 @@
 (defn create-data [doc]
   (reduce-kv
     (fn [r k v]
-      (let [find-schema (get-in doc [:embedded :profile :schema k])]
+      (let [find-schema (get-in doc [:embedded :profile :data :schema k])]
         (conj r (assoc-when {:key k :value v :raw-value (raw-value v)}
                             :type find-schema))))
     []
-    (dissoc doc :links :queries :forms :embedded :ops)))
+    (:data doc)))
 
 (def sequential-vals (map (fn [[rel x]] [rel (if (sequential? x) x [x])])))
 
@@ -61,7 +61,7 @@
   because we need lists of things instead of maps for om."
   [doc]
   (-> doc
-      (assoc :data (create-data doc))
+      (assoc :data-view (create-data doc))
       (assoc :links-view (into [] sequential-vals (:links doc)))
       (update :queries convert-queries)
       (update :forms convert-queries)
@@ -159,13 +159,13 @@
   "Listens on the :update topic."
   [app-state owner]
   (bus/listen-on owner :update
-    (fn [{:keys [resource doc]}]
+    (fn [doc]
       (alert/close! owner)
       (util/scroll-to-top)
       (go
         (try
-          (let [doc (<? (hap/update resource doc))]
-            (set-uri-and-doc! app-state (str (:self (:links doc))) doc))
+          (let [doc (<? (hap/update (-> doc :links :self) doc))]
+            (set-uri-and-doc! app-state (str (-> doc :links :self)) doc))
           (catch js/Error e
             (if-let [ex-data (ex-data e)]
               (if-let [doc (:body ex-data)]
@@ -386,20 +386,23 @@
              :on-click (h (bus/publish! owner :delete (del-msg doc)))}
             "Delete"))
 
-(defn edit-button [data]
+(defn edit-button [data-view]
   (d/button {:class "btn btn-default pull-right"
              :type "button"
-             :on-click (h (om/transact! data (partial mapv #(update % :edit not))))}
-            (if (:edit (first data)) "Discard" "Edit")))
+             :on-click
+             (h (om/transact! data-view (partial mapv #(update % :edit not))))}
+            (if (:edit (first data-view)) "Discard" "Edit")))
 
 (defn edit
   "Merges edited data back into the normal doc structure."
   [doc]
-  (reduce (fn [doc {:keys [key value]}] (assoc doc key value)) doc (:data doc)))
+  (reduce (fn [doc {:keys [key value]}]
+            (assoc-in doc [:data key] value))
+          doc
+          (:data-view doc)))
 
 (defn update-msg [doc]
-  {:resource (-> doc :links :self)
-   :doc (dissoc (edit doc) :data :links-view :embedded-view)})
+  (dissoc (edit doc) :data-view :links-view :embedded-view))
 
 (defn submit-button [owner doc]
   (d/button {:class "btn btn-primary pull-right"
@@ -410,18 +413,19 @@
 (defcomponent rep [doc owner]
   (render [_]
     (d/div
-      (when (and (contains? (:ops doc) :delete) (not (:edit (first (:data doc)))))
+      (when (and (contains? (:ops doc) :delete)
+                 (not (:edit (first (:data-view doc)))))
         (delete-button owner doc))
-      (when (:edit (first (:data doc)))
+      (when (:edit (first (:data-view doc)))
         (submit-button owner doc))
       (when (and (contains? (:ops doc) :update) (get-in doc [:embedded :profile])
-                 (seq (:data doc)))
-        (edit-button (:data doc)))
+                 (seq (:data-view doc)))
+        (edit-button (:data-view doc)))
       (d/h3 "Data")
-      (if (seq (:data doc))
-        (om/build data-table (:data doc))
+      (if (seq (:data-view doc))
+        (om/build data-table (:data-view doc))
         (d/div {:class "border"}
-          (d/p "No additional data available.")))
+          (d/p "No application-specific data available.")))
 
       (d/h3 "Links")
       (if (seq (:links-view doc))
@@ -468,5 +472,5 @@
         (om/build rep doc)))))
 
 (om/root app app-state
-         {:target (dom/getElement "app")
-          :shared {:event-bus (bus/init-bus)}})
+  {:target (dom/getElement "app")
+   :shared {:event-bus (bus/init-bus)}})

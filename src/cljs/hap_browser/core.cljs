@@ -81,6 +81,11 @@
   (do (alert! owner :danger (str "Unexpected error: " (.-message e)))
       (println (.-stack e))))
 
+(defn fetch-and-resolve-profile [resource]
+  (try-go
+    (let [doc (<? (hap/fetch resource))]
+      (<? (resolve-profile doc)))))
+
 (defn fetch-loop
   "Listens on the :fetch topic. Tries to fetch the resource."
   [app-state owner]
@@ -90,9 +95,8 @@
       (util/scroll-to-top)
       (go
         (try
-          (let [doc (<? (hap/fetch resource))
-                doc (<? (resolve-profile doc))]
-            (set-uri-and-doc! app-state (str resource) doc))
+          (->> (<? (fetch-and-resolve-profile resource))
+               (set-uri-and-doc! app-state (str resource)))
           (catch js/Error e
             (if-let [ex-data (ex-data e)]
               (if-let [doc (:body ex-data)]
@@ -114,7 +118,8 @@
       (util/scroll-to-top)
       (go
         (try
-          (set-uri-and-doc! app-state nil (<? (execute-query query)))
+          (->> (<? (execute-query query))
+               (set-uri-and-doc! app-state nil))
           (catch js/Error e
             (if-let [ex-data (ex-data e)]
               (if-let [doc (:body ex-data)]
@@ -130,7 +135,7 @@
 (defn create-and-fetch [form]
   (try-go
     (let [resource (<? (hap/create form (to-args (:params form))))]
-      (<? (hap/fetch resource)))))
+      (<? (fetch-and-resolve-profile resource)))))
 
 (defn create-loop
   "Listens on the :create topic. Tries to create the resource."

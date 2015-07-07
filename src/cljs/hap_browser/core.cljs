@@ -410,11 +410,11 @@
 (defcomponent rep [doc owner]
   (render [_]
     (d/div
-      (when (and (some #{:delete} (:ops doc)) (not (:edit (first (:data doc)))))
+      (when (and (contains? (:ops doc) :delete) (not (:edit (first (:data doc)))))
         (delete-button owner doc))
       (when (:edit (first (:data doc)))
         (submit-button owner doc))
-      (when (and (some #{:update} (:ops doc)) (get-in doc [:embedded :profile])
+      (when (and (contains? (:ops doc) :update) (get-in doc [:embedded :profile])
                  (seq (:data doc)))
         (edit-button (:data doc)))
       (d/h3 "Data")

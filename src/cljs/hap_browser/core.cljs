@@ -113,7 +113,7 @@
   "Listens on the :execute-query topic. Tries to execute the query."
   [app-state owner]
   (bus/listen-on owner :execute-query
-    (fn [query]
+    (fn [[_ query]]
       (alert/close! owner)
       (util/scroll-to-top)
       (go
@@ -137,11 +137,14 @@
     (let [resource (<? (hap/create form (to-args (:params form))))]
       (<? (fetch-and-resolve-profile resource)))))
 
+(defn assoc-form [doc key form]
+  (update doc :forms #(assoc % key form)))
+
 (defn create-loop
   "Listens on the :create topic. Tries to create the resource."
   [app-state owner]
   (bus/listen-on owner :create
-    (fn [form]
+    (fn [[key form]]
       (alert/close! owner)
       (util/scroll-to-top)
       (go
@@ -151,7 +154,7 @@
           (catch js/Error e
             (if-let [ex-data (ex-data e)]
               (if-let [doc (:body ex-data)]
-                (set-uri-and-doc! app-state nil doc)
+                (set-uri-and-doc! app-state nil (assoc-form doc key form))
                 (alert! owner :danger (str "Create error: " (.-message e))))
               (unexpected-error! owner e))))))))
 
@@ -367,7 +370,7 @@
       (d/form
         (apply d/div (build-query-groups key query))
         (d/button {:class "btn btn-primary" :type "submit"
-                   :on-click (h (bus/publish! owner topic query))}
+                   :on-click (h (bus/publish! owner topic [key @query]))}
                   "Submit")))))
 
 (defcomponent query-list [queries _ opts]
@@ -383,7 +386,7 @@
 (defn delete-button [owner doc]
   (d/button {:class "btn btn-danger pull-right"
              :type "button"
-             :on-click (h (bus/publish! owner :delete (del-msg doc)))}
+             :on-click (h (bus/publish! owner :delete (del-msg @doc)))}
             "Delete"))
 
 (defn edit-button [data-view]

@@ -236,6 +236,7 @@
 (defn value-updater [param]
   (fn [x]
     (let [raw-val (util/target-value x)
+          raw-val (when-not (str/blank? raw-val) raw-val)
           coercer (c/coercer @(:type param) c/string-coercion-matcher)
           val (coercer raw-val)]
       (om/update! param :raw-value raw-val)

@@ -69,7 +69,7 @@
 
 (defn resolve-profile [doc]
   (try-go
-    (if-let [profile-resource (-> doc :links :profile)]
+    (if-let [profile-resource (-> doc :links :profile :href hap/resource)]
       (assoc-in doc [:embedded :profile] (<? (hap/fetch profile-resource)))
       doc)))
 
@@ -167,7 +167,7 @@
       (util/scroll-to-top)
       (go
         (try
-          (let [doc (<? (hap/update (-> doc :links :self) doc))]
+          (let [doc (<? (hap/update (-> doc :links :self :href hap/resource) doc))]
             (set-uri-and-doc! app-state (str (-> doc :links :self)) doc))
           (catch js/Error e
             (if-let [ex-data (ex-data e)]
@@ -273,16 +273,18 @@
 
 ;; ---- Links -----------------------------------------------------------------
 
-(defn render-link [res owner]
-  (d/a {:href "#" :on-click (h (bus/publish! owner :fetch res))} (str res)))
+(defn render-link [link owner]
+  (d/a {:href "#"
+        :on-click (h (bus/publish! owner :fetch (hap/resource (:href link))))}
+    (or (:label link) (str (:href link)))))
 
-(defn render-first-link-row [[rel count resource] owner]
+(defn render-first-link-row [[rel count link] owner]
   (d/tr
     (d/td {:row-span count} (str rel))
-    (d/td (render-link resource owner))))
+    (d/td (render-link link owner))))
 
-(defn render-link-row [resource owner]
-  (d/tr (d/td (render-link resource owner))))
+(defn render-link-row [link owner]
+  (d/tr (d/td (render-link link owner))))
 
 (defcomponent link-row-group [[rel resources] owner]
   (render [_]
@@ -293,7 +295,7 @@
 (defcomponent link-table [links _]
   (render [_]
     (d/table {:class "table table-bordered table-hover"}
-      (d/thead (d/tr (d/th "rel") (d/th "resource")))
+      (d/thead (d/tr (d/th "rel") (d/th "target")))
       (om/build-all link-row-group links))))
 
 ;; ---- Embedded -----------------------------------------------------------------
@@ -301,18 +303,18 @@
 (defn render-empty-embedded-row [rel]
   (d/tr (d/td (str rel)) (d/td "<empty>")))
 
-(defn render-embedded-resource-link [rep owner]
-  (if-let [res (:self (:links rep))]
-    (d/a {:href "#" :on-click (h (bus/publish! owner :fetch res))} (str res))
+(defn render-embedded-self-link [rep owner]
+  (if-let [link (:self (:links rep))]
+    (render-link link owner)
     "<missing self link>"))
 
 (defn render-first-embedded-row [[rel count rep] owner]
   (d/tr
     (d/td {:row-span count} (str rel))
-    (d/td (render-embedded-resource-link rep owner))))
+    (d/td (render-embedded-self-link rep owner))))
 
 (defn render-embedded-row [rep owner]
-  (d/tr (d/td (render-embedded-resource-link rep owner))))
+  (d/tr (d/td (render-embedded-self-link rep owner))))
 
 (defcomponent embedded-row-group [[rel reps] owner]
   (render [_]
@@ -325,7 +327,7 @@
 (defcomponent embedded-table [embedded _]
   (render [_]
     (apply d/table {:class "table table-bordered table-hover"}
-           (d/thead (d/tr (d/th "rel") (d/th "resource")))
+           (d/thead (d/tr (d/th "rel") (d/th "target")))
            (om/build-all embedded-row-group embedded))))
 
 ;; ---- Query -----------------------------------------------------------------
@@ -381,8 +383,8 @@
 ;; ---- Rep -------------------------------------------------------------------
 
 (defn del-msg [doc]
-  {:resource (get-in doc [:links :self])
-   :up (get-in doc [:links :up])})
+  {:resource (-> doc :links :self :href hap/resource)
+   :up (-> doc :links :up :href hap/resource)})
 
 (defn delete-button [owner doc]
   (d/button {:class "btn btn-danger pull-right"

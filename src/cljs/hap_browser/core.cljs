@@ -299,33 +299,40 @@
 ;; ---- Embedded -----------------------------------------------------------------
 
 (defn render-empty-embedded-row [rel]
-  (d/tr (d/td (str rel)) (d/td "<empty>")))
+  (d/tr (d/td (str rel)) (d/td {:col-span 2} "<empty>")))
 
 (defn render-embedded-resource-link [rep owner]
   (if-let [res (:self (:links rep))]
     (d/a {:href "#" :on-click (h (bus/publish! owner :fetch res))} (str res))
     "<missing self link>"))
 
-(defn render-first-embedded-row [[rel count rep] owner]
+(defn render-first-embedded-row [[rel count rep data-item] owner]
   (d/tr
     (d/td {:row-span count} (str rel))
-    (d/td (render-embedded-resource-link rep owner))))
+    (d/td (render-embedded-resource-link rep owner))
+    (d/td (pr-str (first data-item)))
+    (d/td (pr-str (second data-item)))))
 
-(defn render-embedded-row [rep owner]
-  (d/tr (d/td (render-embedded-resource-link rep owner))))
+(defn render-embedded-data-rows [[rep data] owner]
+  (for [data-item data]
+    (d/tr
+      (d/td (render-embedded-resource-link rep owner))
+      (d/td (pr-str (first data-item)))
+      (d/td (pr-str (second data-item))))))
 
 (defcomponent embedded-row-group [[rel reps] owner]
   (render [_]
     (if (empty? reps)
       (d/tbody (render-empty-embedded-row rel))
       (apply d/tbody
-             (render-first-embedded-row [rel (count reps) (first reps)] owner)
-             (map #(render-embedded-row % owner) (rest reps))))))
+             (render-first-embedded-row [rel (count (mapcat :data reps)) (first reps) (first (:data (first reps)))] owner)
+             (map #(render-embedded-data-rows % owner) (concat (map (fn [rep] [rep (rest (:data rep))]) [(first reps)])
+                                                               (map (fn [rep] [rep (:data rep)]) (rest reps))))))))
 
 (defcomponent embedded-table [embedded _]
   (render [_]
     (apply d/table {:class "table table-bordered table-hover"}
-           (d/thead (d/tr (d/th "rel") (d/th "resource")))
+           (d/thead (d/tr (d/th "rel") (d/th "id") (d/th "key") (d/th "value")))
            (om/build-all embedded-row-group embedded))))
 
 ;; ---- Query -----------------------------------------------------------------

@@ -216,7 +216,7 @@
                   :value (:uri bar)
                   :on-change #(om/update! bar :uri (util/target-value %))}))
       (d/button {:class "btn btn-default" :type "submit"
-                 :on-click (h (bus/publish! owner :fetch (hap/resource (add-http (:uri bar)))))}
+                 :on-click (h (bus/publish! owner :fetch (add-http (:uri bar))))}
                 "Fetch"))))
 
 ;; ---- Data ------------------------------------------------------------------
@@ -275,7 +275,7 @@
 
 (defn render-link [link owner]
   (d/a {:href "#"
-        :on-click (h (bus/publish! owner :fetch (hap/resource (:href link))))}
+        :on-click (h (bus/publish! owner :fetch link))}
     (or (:label link) (str (:href link)))))
 
 (defn render-first-link-row [[rel count link] owner]

@@ -69,8 +69,8 @@
 
 (defn resolve-profile [doc]
   (try-go
-    (if-let [profile-resource (-> doc :links :profile :href hap/resource)]
-      (assoc-in doc [:embedded :profile] (<? (hap/fetch profile-resource)))
+    (if-let [profile-link (-> doc :links :profile)]
+      (assoc-in doc [:embedded :profile] (<? (hap/fetch profile-link)))
       doc)))
 
 (defn set-uri-and-doc! [app-state uri doc]
@@ -167,7 +167,7 @@
       (util/scroll-to-top)
       (go
         (try
-          (let [doc (<? (hap/update (-> doc :links :self :href hap/resource) doc))]
+          (let [doc (<? (hap/update (-> doc :links :self) doc))]
             (set-uri-and-doc! app-state (str (-> doc :links :self)) doc))
           (catch js/Error e
             (if-let [ex-data (ex-data e)]
@@ -383,8 +383,8 @@
 ;; ---- Rep -------------------------------------------------------------------
 
 (defn del-msg [doc]
-  {:resource (-> doc :links :self :href hap/resource)
-   :up (-> doc :links :up :href hap/resource)})
+  {:resource (-> doc :links :self)
+   :up (-> doc :links :up)})
 
 (defn delete-button [owner doc]
   (d/button {:class "btn btn-danger pull-right"

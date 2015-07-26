@@ -73,8 +73,10 @@
       (assoc-in doc [:embedded :profile] (<? (hap/fetch profile-link)))
       doc)))
 
-(defn set-uri-and-doc! [app-state uri doc]
-  (om/transact! app-state #(-> (assoc-in % [:location-bar :uri] uri)
+(defn set-uri-and-doc! [app-state resource doc]
+  (om/transact! app-state #(-> (->> (some-> (or (:href resource) resource)
+                                            (str))
+                                    (assoc-in % [:location-bar :uri]))
                                (assoc :doc (convert-doc doc)))))
 
 (defn unexpected-error! [owner e]
@@ -96,7 +98,7 @@
       (go
         (try
           (->> (<? (fetch-and-resolve-profile resource))
-               (set-uri-and-doc! app-state (str resource)))
+               (set-uri-and-doc! app-state resource))
           (catch js/Error e
             (if-let [ex-data (ex-data e)]
               (if-let [doc (:body ex-data)]
@@ -150,7 +152,7 @@
       (go
         (try
           (let [doc (<? (create-and-fetch form))]
-            (set-uri-and-doc! app-state (str (:self (:links doc))) doc))
+            (set-uri-and-doc! app-state (:self (:links doc)) doc))
           (catch js/Error e
             (if-let [ex-data (ex-data e)]
               (if-let [doc (:body ex-data)]
@@ -168,7 +170,7 @@
       (go
         (try
           (let [doc (<? (hap/update (-> doc :links :self) doc))]
-            (set-uri-and-doc! app-state (str (-> doc :links :self)) doc))
+            (set-uri-and-doc! app-state (-> doc :links :self) doc))
           (catch js/Error e
             (if-let [ex-data (ex-data e)]
               (if-let [doc (:body ex-data)]
@@ -188,7 +190,7 @@
           (<? (hap/delete resource))
           (alert! owner :success (str "Successfully deleted " resource "."))
           (when up
-            (set-uri-and-doc! app-state (str up) (<? (hap/fetch up))))
+            (set-uri-and-doc! app-state up (<? (hap/fetch up))))
           (catch js/Error e
             (if-let [ex-data (ex-data e)]
               (if-let [doc (:body ex-data)]

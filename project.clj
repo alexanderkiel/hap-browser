@@ -11,7 +11,7 @@
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                  [http-kit "2.1.18"]
                  [ring/ring-core "1.3.2"]
-                 [bidi "1.18.10" :exclusions [ring/ring-core]]
+                 [bidi "1.20.2" :exclusions [ring/ring-core]]
                  [compojure "1.3.3"]
                  [org.omcljs/om "0.8.8" :scope "provided"]
                  [prismatic/plumbing "0.4.3"]

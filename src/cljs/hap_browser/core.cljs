@@ -1,11 +1,13 @@
 (ns hap-browser.core
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]
                    [plumbing.core :refer [fnk defnk letk when-letk for-map]]
-                   [hap-browser.macros :refer [h try-go <?]])
+                   [hap-browser.macros :refer [h]]
+                   [async-error.core :refer [go-try <?]])
   (:require [plumbing.core :refer [assoc-when map-vals conj-when]]
             [clojure.string :as str]
             [goog.string :as gs]
             [cljs.core.async :refer [put! chan <!]]
+            [async-error.helper]
             [goog.dom :as dom]
             [goog.events :as events]
             [om.core :as om :include-macros true]
@@ -68,7 +70,7 @@
       (assoc :embedded-view (into [] sequential-vals (:embedded doc)))))
 
 (defn resolve-profile [doc]
-  (try-go
+  (go-try
     (if-let [profile-link (-> doc :links :profile)]
       (assoc-in doc [:embedded :profile] (<? (hap/fetch profile-link)))
       doc)))
@@ -84,7 +86,7 @@
       (println (.-stack e))))
 
 (defn fetch-and-resolve-profile [resource]
-  (try-go
+  (go-try
     (let [doc (<? (hap/fetch resource))]
       (<? (resolve-profile doc)))))
 
@@ -135,7 +137,7 @@
     id value))
 
 (defn create-and-fetch [form]
-  (try-go
+  (go-try
     (let [resource (<? (hap/create form (to-args (:params form))))]
       (<? (fetch-and-resolve-profile resource)))))
 

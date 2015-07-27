@@ -2,12 +2,6 @@
   (:require [cljs.core.async :refer [chan put!]]
             [goog.events :as events]))
 
-;; ---- Core Async ------------------------------------------------------------
-
-(defn throw-err [e]
-  (when (instance? js/Error e) (throw e))
-  e)
-
 ;; ---- Events ----------------------------------------------------------------
 
 (defn listen [el type]

@@ -17,8 +17,9 @@
                  [prismatic/plumbing "0.4.3"]
                  [prismatic/schema "0.4.2"]
                  [prismatic/om-tools "0.3.11" :scope "provided"]
-                 [org.clojars.akiel/hap-client-clj "0.1"
-                  :exclusions [com.cognitect/transit-clj]]]
+                 [org.clojars.akiel/hap-client-clj "0.2-SNAPSHOT"
+                  :exclusions [com.cognitect/transit-clj]]
+                 [org.clojars.akiel/async-error "0.1-SNAPSHOT"]]
 
   :profiles {:dev
              {:source-paths ["dev"]

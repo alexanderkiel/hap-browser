@@ -1,13 +1,12 @@
 (ns hap-browser.core
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]
                    [plumbing.core :refer [fnk defnk letk when-letk for-map]]
-                   [hap-browser.macros :refer [h]]
-                   [async-error.core :refer [go-try <?]])
+                   [hap-browser.macros :refer [h]])
   (:require [plumbing.core :refer [assoc-when map-vals conj-when]]
             [clojure.string :as str]
             [goog.string :as gs]
             [cljs.core.async :refer [put! chan <!]]
-            [async-error.helper]
+            [async-error.core :refer-macros [go-try <?]]
             [goog.dom :as dom]
             [goog.events :as events]
             [om.core :as om :include-macros true]

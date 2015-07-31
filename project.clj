@@ -46,7 +46,7 @@
                           :optimizations :advanced
                           :pretty-print false}}]}}}
 
-  :plugins [[lein-cljsbuild "1.0.5"]
+  :plugins [[lein-cljsbuild "1.0.6"]
             [lein-figwheel "0.3.3" :exclusions [org.codehaus.plexus/plexus-utils
                                                 org.clojure/clojure]]]
 

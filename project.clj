@@ -47,7 +47,7 @@
                           :pretty-print false}}]}}}
 
   :plugins [[lein-cljsbuild "1.0.6"]
-            [lein-figwheel "0.3.3" :exclusions [org.codehaus.plexus/plexus-utils
+            [lein-figwheel "0.3.7" :exclusions [org.codehaus.plexus/plexus-utils
                                                 org.clojure/clojure]]]
 
   :source-paths ["src/clj" "src/cljs"]

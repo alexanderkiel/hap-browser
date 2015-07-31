@@ -13,7 +13,7 @@
                  [ring/ring-core "1.3.2"]
                  [bidi "1.20.2" :exclusions [ring/ring-core]]
                  [compojure "1.3.3"]
-                 [org.omcljs/om "0.8.8" :scope "provided"]
+                 [org.omcljs/om "0.9.0" :scope "provided"]
                  [prismatic/plumbing "0.4.4"]
                  [prismatic/om-tools "0.3.11" :scope "provided"]
                  [org.clojars.akiel/hap-client-clj "0.2-SNAPSHOT"

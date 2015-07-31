@@ -14,8 +14,7 @@
                  [bidi "1.20.2" :exclusions [ring/ring-core]]
                  [compojure "1.3.3"]
                  [org.omcljs/om "0.8.8" :scope "provided"]
-                 [prismatic/plumbing "0.4.3"]
-                 [prismatic/schema "0.4.2"]
+                 [prismatic/plumbing "0.4.4"]
                  [prismatic/om-tools "0.3.11" :scope "provided"]
                  [org.clojars.akiel/hap-client-clj "0.2-SNAPSHOT"
                   :exclusions [com.cognitect/transit-clj]]

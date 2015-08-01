@@ -74,9 +74,11 @@
       (assoc-in doc [:embedded :profile] (<? (hap/fetch profile-link)))
       doc)))
 
+(defn- to-uri [resource]
+  (some-> (or (:href resource) resource) (str)))
+
 (defn set-uri-and-doc! [app-state resource doc]
-  (om/transact! app-state #(-> (->> (some-> (or (:href resource) resource)
-                                            (str))
+  (om/transact! app-state #(-> (->> (to-uri resource)
                                     (assoc-in % [:location-bar :uri]))
                                (assoc :doc (convert-doc doc)))))
 
@@ -189,7 +191,7 @@
       (go
         (try
           (<? (hap/delete resource))
-          (alert! owner :success (str "Successfully deleted " resource "."))
+          (alert! owner :success (str "Successfully deleted " (to-uri resource) "."))
           (when up
             (set-uri-and-doc! app-state up (<? (hap/fetch up))))
           (catch js/Error e

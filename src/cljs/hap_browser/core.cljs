@@ -14,6 +14,7 @@
             [om-tools.dom :as d :include-macros true]
             [hap-client.core :as hap]
             [hap-browser.event-bus :as bus]
+            [hap-browser.coerce :as bc]
             [hap-browser.util :as util]
             [hap-browser.alert :as alert :refer [alert!]]
             [schema.core :as s]
@@ -242,7 +243,7 @@
   (fn [x]
     (let [raw-val (util/target-value x)
           raw-val (when-not (str/blank? raw-val) raw-val)
-          coercer (c/coercer @(:type param) c/string-coercion-matcher)
+          coercer (c/coercer @(:type param) bc/coercion-matcher)
           val (coercer raw-val)]
       (om/update! param :raw-value raw-val)
       (if (schema.utils/error? val)

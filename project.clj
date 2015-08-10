@@ -7,7 +7,7 @@
   :min-lein-version "2.0.0"
 
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [org.clojure/clojurescript "1.7.28"]
+                 [org.clojure/clojurescript "1.7.48"]
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                  [http-kit "2.1.18"]
                  [ring/ring-core "1.3.2"]

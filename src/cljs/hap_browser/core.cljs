@@ -366,7 +366,7 @@
                     :on-change (value-updater param)}))
         (when-let [error (:error param)]
           (d/span {:class "help-block"} (pr-str error)))
-        (when-let [desc (or (:desc param))]
+        (when-let [desc (or (:label param))]
           (d/span {:class "help-block"} desc))))))
 
 (defn- build-query-groups [key query]
@@ -375,7 +375,7 @@
 (defcomponent query [[key query] owner {:keys [topic]}]
   (render [_]
     (d/div {:style {:margin-bottom "10px"}}
-      (d/h4 (or (:title query) (kw->label key)))
+      (d/h4 (or (:label query) (kw->label key)))
       (d/form
         (apply d/div (build-query-groups key query))
         (d/button {:class "btn btn-primary" :type "submit"

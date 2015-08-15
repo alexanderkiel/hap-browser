@@ -13,7 +13,12 @@
 (defn target-value [e]
   (.. e -target -value))
 
-;; ---- Events ----------------------------------------------------------------
+;; ---- Other ----------------------------------------------------------------
 
 (defn scroll-to-top []
   (.scrollTo js/window 0 0))
+
+(def make-vals-sequential
+  "Transducer which ensures that map vals are sequential."
+  (map (fn [[k v]] [k (if (sequential? v) v [v])])))
+

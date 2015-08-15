@@ -56,18 +56,16 @@
     []
     (:data doc)))
 
-(def sequential-vals (map (fn [[rel x]] [rel (if (sequential? x) x [x])])))
-
 (defn convert-doc
   "Convert all forms like {:id-1 {} :id-2 {}} into [[:id-1 {}] [:id-2 {}]]
   because we need lists of things instead of maps for om."
   [doc]
   (-> doc
       (assoc :data-view (create-data doc))
-      (assoc :links-view (into [] sequential-vals (:links doc)))
+      (assoc :links-view (into [] util/make-vals-sequential (:links doc)))
       (update :queries convert-queries)
       (update :forms convert-queries)
-      (assoc :embedded-view (into [] sequential-vals (:embedded doc)))))
+      (assoc :embedded-view (into [] util/make-vals-sequential (:embedded doc)))))
 
 (defn resolve-profile [doc]
   (go-try

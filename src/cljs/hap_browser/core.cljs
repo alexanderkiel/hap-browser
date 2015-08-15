@@ -56,13 +56,17 @@
     []
     (:data doc)))
 
+(defn- build-links-view [links]
+  (-> (into [] util/make-vals-sequential (select-keys links [:up :self]))
+      (into util/make-vals-sequential (dissoc links :up :self))))
+
 (defn convert-doc
   "Convert all forms like {:id-1 {} :id-2 {}} into [[:id-1 {}] [:id-2 {}]]
   because we need lists of things instead of maps for om."
   [doc]
   (-> doc
       (assoc :data-view (create-data doc))
-      (assoc :links-view (into [] util/make-vals-sequential (:links doc)))
+      (assoc :links-view (build-links-view (:links doc)))
       (update :queries convert-queries)
       (update :forms convert-queries)
       (assoc :embedded-view (into [] util/make-vals-sequential (:embedded doc)))))

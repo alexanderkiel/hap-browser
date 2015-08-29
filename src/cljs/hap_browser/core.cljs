@@ -18,9 +18,23 @@
             [hap-browser.util :as util]
             [hap-browser.alert :as alert :refer [alert!]]
             [schema.core :as s]
-            [schema.coerce :as c]))
+            [schema.coerce :as c]
+            [schema.utils]))
 
 (enable-console-print!)
+
+;; TODO: remove when https://github.com/Prismatic/schema/pull/262 is merged
+(extend-protocol s/Schema
+  function
+  (explain [this]
+    (if-let [more-schema (schema.utils/class-schema this)]
+      (s/explain more-schema)
+      (condp = this
+        js/Boolean 'Bool
+        js/Number 'Num
+        js/Date 'Inst
+        cljs.core/UUID 'Uuid
+        this))))
 
 (defonce app-state
   (atom
@@ -225,7 +239,7 @@
                   :on-change #(om/update! bar :uri (util/target-value %))}))
       (d/button {:class "btn btn-default" :type "submit"
                  :on-click (h (bus/publish! owner :fetch (add-http (:uri bar))))}
-                "Fetch"))))
+        "Fetch"))))
 
 ;; ---- Data ------------------------------------------------------------------
 
@@ -300,8 +314,8 @@
 (defcomponent link-row-group [[rel resources] owner]
   (render [_]
     (apply d/tbody
-           (render-first-link-row [rel (count resources) (first resources)] owner)
-           (map #(render-link-row % owner) (rest resources)))))
+      (render-first-link-row [rel (count resources) (first resources)] owner)
+      (map #(render-link-row % owner) (rest resources)))))
 
 (defcomponent link-table [links _]
   (render [_]
@@ -332,14 +346,14 @@
     (if (empty? reps)
       (d/tbody (render-empty-embedded-row rel))
       (apply d/tbody
-             (render-first-embedded-row [rel (count reps) (first reps)] owner)
-             (map #(render-embedded-row % owner) (rest reps))))))
+        (render-first-embedded-row [rel (count reps) (first reps)] owner)
+        (map #(render-embedded-row % owner) (rest reps))))))
 
 (defcomponent embedded-table [embedded _]
   (render [_]
     (apply d/table {:class "table table-bordered table-hover"}
-           (d/thead (d/tr (d/th "rel") (d/th "target")))
-           (om/build-all embedded-row-group embedded))))
+      (d/thead (d/tr (d/th "rel") (d/th "target")))
+      (om/build-all embedded-row-group embedded))))
 
 ;; ---- Query -----------------------------------------------------------------
 
@@ -385,7 +399,7 @@
         (apply d/div (build-query-groups key query))
         (d/button {:class "btn btn-primary" :type "submit"
                    :on-click (h (bus/publish! owner topic [key @query]))}
-                  "Submit")))))
+          "Submit")))))
 
 (defcomponent query-list [queries _ opts]
   (render [_]
@@ -401,14 +415,14 @@
   (d/button {:class "btn btn-danger pull-right"
              :type "button"
              :on-click (h (bus/publish! owner :delete (del-msg @doc)))}
-            "Delete"))
+    "Delete"))
 
 (defn edit-button [data-view]
   (d/button {:class "btn btn-default pull-right"
              :type "button"
              :on-click
              (h (om/transact! data-view (partial mapv #(update % :edit not))))}
-            (if (:edit (first data-view)) "Discard" "Edit")))
+    (if (:edit (first data-view)) "Discard" "Edit")))
 
 (defn edit
   "Merges edited data back into the normal doc structure."
@@ -425,7 +439,7 @@
   (d/button {:class "btn btn-primary pull-right"
              :type "button"
              :on-click (h (bus/publish! owner :update (update-msg @doc)))}
-            "Submit"))
+    "Submit"))
 
 (defcomponent rep [doc owner]
   (render [_]

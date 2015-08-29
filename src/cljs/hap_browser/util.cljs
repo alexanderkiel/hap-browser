@@ -1,6 +1,7 @@
 (ns hap-browser.util
   (:require [cljs.core.async :refer [chan put!]]
-            [goog.events :as events]))
+            [goog.events :as events]
+            [om.core :as om]))
 
 ;; ---- Events ----------------------------------------------------------------
 
@@ -22,3 +23,5 @@
   "Transducer which ensures that map vals are sequential."
   (map (fn [[k v]] [k (if (sequential? v) v [v])])))
 
+(defn deref-cursor [x]
+  (if (om/cursor? x) (deref x) x))

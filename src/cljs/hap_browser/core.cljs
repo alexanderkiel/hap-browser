@@ -245,7 +245,7 @@
   (fn [x]
     (let [raw-val (util/target-value x)
           raw-val (when-not (str/blank? raw-val) raw-val)
-          coercer (c/coercer @(:type param) bc/coercion-matcher)
+          coercer (c/coercer (util/deref-cursor (:type param)) bc/coercion-matcher)
           val (coercer raw-val)]
       (om/update! param :raw-value raw-val)
       (if (schema.utils/error? val)
@@ -253,6 +253,9 @@
                                       :value nil))
         (om/transact! param #(assoc % :error nil
                                       :value val))))))
+
+(defn format-type [type]
+  (-> type util/deref-cursor s/explain pr-str))
 
 (defcomponent data-row [{:keys [key raw-value type error edit] :as item} _]
   (render [_]
@@ -267,7 +270,7 @@
                         :id (form-control-id :update key)
                         :type "text"
                         :value raw-value
-                        :placeholder (-> type deref s/explain pr-str)
+                        :placeholder (format-type type)
                         :on-change (value-updater item)}))
             (when-let [error (:error item)]
               (d/span {:class "help-block"} (pr-str error))))
@@ -364,7 +367,7 @@
                     :id (form-control-id query-key key)
                     :type "text"
                     :value (:raw-value param)
-                    :placeholder (-> param :type deref s/explain pr-str)
+                    :placeholder (-> param :type format-type)
                     :on-change (value-updater param)}))
         (when-let [error (:error param)]
           (d/span {:class "help-block"} (pr-str error)))

@@ -61,6 +61,6 @@
                             (println "Restart: (reset)"))}
 
   :figwheel {:css-dirs ["resources/public/css"]
-
+             :nrepl-port 7888
              :server-port 5100
              :ring-handler hap-browser.app/app-dev})

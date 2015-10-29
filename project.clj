@@ -7,8 +7,8 @@
   :min-lein-version "2.0.0"
 
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [org.clojure/clojurescript "1.7.48"]
-                 [org.clojure/core.async "0.1.346.0-17112a-alpha"]
+                 [org.clojure/clojurescript "1.7.145"]
+                 [org.clojure/core.async "0.2.371"]
                  [http-kit "2.1.18"]
                  [ring/ring-core "1.3.2"]
                  [bidi "1.20.2" :exclusions [ring/ring-core]]
@@ -45,8 +45,8 @@
                           :optimizations :advanced
                           :pretty-print false}}]}}}
 
-  :plugins [[lein-cljsbuild "1.0.6"]
-            [lein-figwheel "0.3.7" :exclusions [org.codehaus.plexus/plexus-utils
+  :plugins [[lein-cljsbuild "1.1.0"]
+            [lein-figwheel "0.4.1" :exclusions [org.codehaus.plexus/plexus-utils
                                                 org.clojure/clojure]]]
 
   :source-paths ["src/clj" "src/cljs"]

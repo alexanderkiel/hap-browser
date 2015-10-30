@@ -218,7 +218,7 @@
                 (alert! owner :danger (str "Delete error: " (.-message e))))
               (unexpected-error! owner e))))))))
 
-;; ---- Location Bar -------------------------------------------------------------
+;; ---- Location Bar ----------------------------------------------------------
 
 (defn- add-http [s]
   (if (or (gs/startsWith s "http://")

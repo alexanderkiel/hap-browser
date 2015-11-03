@@ -17,11 +17,12 @@
             [hap-browser.coerce :as bc]
             [hap-browser.util :as util]
             [hap-browser.alert :as alert :refer [alert!]]
-            [schema.core :as s]
+            [schema.core :as s :refer [Str Keyword] :include-macros true]
             [schema.coerce :as c]
             [schema.utils]))
 
 (enable-console-print!)
+(s/set-fn-validation! js/enableSchemaValidation)
 
 ;; TODO: remove when https://github.com/Prismatic/schema/pull/262 is merged
 (extend-protocol s/Schema
@@ -52,8 +53,21 @@
       (om/refresh! owner)
       (recur))))
 
-(defn convert-queries [queries]
-  (mapv (fn [[id query]] [id (update query :params #(into [] %))]) queries))
+(def ParamList
+  [[(s/one Keyword "id") (s/one hap/Param "param")]])
+
+(s/defn convert-params :- ParamList [params :- hap/Params]
+  (vec params))
+
+(def Query
+  (assoc hap/Query :params ParamList))
+
+(def QueryList
+  [[(s/one Keyword "id") (s/one Query "query")]])
+
+(s/defn convert-queries :- QueryList [queries :- hap/Queries]
+  (vec (for [[id query] queries]
+         [id (update query :params convert-params)])))
 
 (defn raw-value [x]
   (cond
@@ -81,8 +95,8 @@
   (-> doc
       (assoc :data-view (create-data doc))
       (assoc :links-view (build-links-view (:links doc)))
-      (update :queries convert-queries)
-      (update :forms convert-queries)
+      (update :queries (fnil convert-queries {}))
+      (update :forms (fnil convert-queries {}))
       (assoc :embedded-view (into [] util/make-vals-sequential (:embedded doc)))))
 
 (defn resolve-profile [doc]
@@ -149,12 +163,12 @@
                 (alert! owner :danger (str "Fetch error: " (.-message e))))
               (unexpected-error! owner e))))))))
 
-(defn to-args [params]
+(s/defn to-args :- hap/Args [params :- hap/Params]
   (for-map [[id {:keys [value]}] params
             :when value]
     id value))
 
-(defn create-and-fetch [form]
+(s/defn create-and-fetch [form :- hap/Form]
   (go-try
     (let [resource (<? (hap/create form (to-args (:params form))))]
       (<? (fetch-and-resolve-profile resource)))))
@@ -391,14 +405,18 @@
 (defn- build-query-groups [key query]
   (om/build-all query-group (:params query) {:opts {:query-key key}}))
 
+(s/defn to-form :- hap/Form [query :- Query]
+  (update query :params (partial into {})))
+
 (defcomponent query [[key query] owner {:keys [topic]}]
   (render [_]
     (d/div {:style {:margin-bottom "10px"}}
       (d/h4 (or (:label query) (kw->label key)))
       (d/form
         (apply d/div (build-query-groups key query))
-        (d/button {:class "btn btn-primary" :type "submit"
-                   :on-click (h (bus/publish! owner topic [key @query]))}
+        (d/button
+          {:class "btn btn-primary" :type "submit"
+           :on-click (h (bus/publish! owner topic [key (to-form @query)]))}
           "Submit")))))
 
 (defcomponent query-list [queries _ opts]

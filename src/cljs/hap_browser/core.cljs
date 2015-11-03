@@ -40,7 +40,8 @@
 (defonce app-state
   (atom
     {:alert {}
-     :location-bar {}}))
+     :location-bar {}
+     :headers [{:name "" :value ""}]}))
 
 (defonce figwheel-reload-ch
   (let [ch (chan)]
@@ -117,10 +118,16 @@
   (do (alert! owner :danger (str "Unexpected error: " (.-message e)))
       (println (.-stack e))))
 
-(defn fetch-and-resolve-profile [resource]
+(s/defn fetch-and-resolve-profile [resource headers :- hap/CustomRequestHeaders]
   (go-try
-    (let [doc (<? (hap/fetch resource))]
+    (let [doc (<? (hap/fetch resource {:headers headers}))]
       (<? (resolve-profile doc)))))
+
+(s/defn mk-headers :- hap/CustomRequestHeaders
+  [headers :- [{:name Str :value Str}]]
+  (->> (remove (comp str/blank? :name) headers)
+       (group-by :name)
+       (map-vals #(str/join "," (map :value %)))))
 
 (defn fetch-loop
   "Listens on the :fetch topic. Tries to fetch the resource."
@@ -131,7 +138,8 @@
       (util/scroll-to-top)
       (go
         (try
-          (->> (<? (fetch-and-resolve-profile resource))
+          (->> (<? (fetch-and-resolve-profile
+                     resource (mk-headers (:headers @app-state))))
                (set-uri-and-doc! app-state resource))
           (catch js/Error e
             (if-let [ex-data (ex-data e)]
@@ -142,8 +150,8 @@
                                              (str " Status was " status ".")))))
               (unexpected-error! owner e))))))))
 
-(defn execute-query [query]
-  (hap/execute query (map-vals :value (:params query))))
+(s/defn execute-query [query :- Query headers :- hap/CustomRequestHeaders]
+  (hap/execute query (map-vals :value (:params query)) {:headers headers}))
 
 (defn execute-query-loop
   "Listens on the :execute-query topic. Tries to execute the query."
@@ -154,7 +162,7 @@
       (util/scroll-to-top)
       (go
         (try
-          (->> (<? (execute-query query))
+          (->> (<? (execute-query query (mk-headers (:headers @app-state))))
                (set-uri-and-doc! app-state nil))
           (catch js/Error e
             (if-let [ex-data (ex-data e)]
@@ -168,10 +176,13 @@
             :when value]
     id value))
 
-(s/defn create-and-fetch [form :- hap/Form]
+(s/defn create [form :- hap/Form headers :- hap/CustomRequestHeaders]
+  (hap/create form (to-args (:params form)) {:headers headers}))
+
+(s/defn create-and-fetch [form :- hap/Form headers :- hap/CustomRequestHeaders]
   (go-try
-    (let [resource (<? (hap/create form (to-args (:params form))))]
-      (<? (fetch-and-resolve-profile resource)))))
+    (let [resource (<? (create form headers))]
+      (<? (fetch-and-resolve-profile resource headers)))))
 
 (defn assoc-form [doc key form]
   (update doc :forms #(assoc % key form)))
@@ -185,7 +196,7 @@
       (util/scroll-to-top)
       (go
         (try
-          (let [doc (<? (create-and-fetch form))]
+          (let [doc (<? (create-and-fetch form (mk-headers (:headers @app-state))))]
             (set-uri-and-doc! app-state (:self (:links doc)) doc))
           (catch js/Error e
             (if-let [ex-data (ex-data e)]
@@ -254,6 +265,58 @@
       (d/button {:class "btn btn-default" :type "submit"
                  :on-click (h (bus/publish! owner :fetch (add-http (:uri bar))))}
         "Fetch"))))
+
+;; ---- Headers ---------------------------------------------------------------
+
+(defcomponent header [header owner]
+  (render [_]
+    (d/div {:class "form-group"}
+      (d/div {:class "col-sm-4"}
+        (d/input {:type "text" :class "form-control" :placeholder "Header"
+                  :value (:name header)
+                  :on-change #(om/update! header :name (util/target-value %))}))
+      (d/div {:class "col-sm-4"}
+        (d/input {:type "text" :class "form-control" :placeholder "Value"
+                  :value (:value header)
+                  :on-change #(om/update! header :value (util/target-value %))}))
+      (d/div {:class "col-sm-4" :style {:padding "6px 0"}}
+        (d/span {:class "fa fa-minus-circle"
+                 :style {:font-size "150%"}
+                 :title "Remove Header"
+                 :role "button"
+                 :on-click (h (bus/publish! owner :remove-header {:idx (:idx header)}))})
+        (d/span {:class "fa fa-plus-circle"
+                 :style {:font-size "150%"
+                         :margin-left 10}
+                 :title "Add Header"
+                 :role "button"
+                 :on-click (h (bus/publish! owner :add-header {}))})))))
+
+(defn add-header-loop
+  "Listens on the :add-header topic. Adds a new blank header to the list of
+  headers."
+  [headers owner]
+  (bus/listen-on owner :add-header
+    (fn [_]
+      (om/transact! headers #(conj % {})))))
+
+(defn remove-header-loop
+  "Listens on the :remove-header topic. removes a new blank header to the list
+  of headers."
+  [headers owner]
+  (bus/listen-on owner :remove-header
+    (fnk [idx]
+      (om/transact! headers #(into (subvec % 0 idx) (subvec % (inc idx)))))))
+
+(defcomponent headers [headers owner]
+  (will-mount [_]
+    (add-header-loop headers owner)
+    (remove-header-loop headers owner))
+  (will-unmount [_]
+    (bus/unlisten-all owner))
+  (render [_]
+    (apply d/div {:class "form-horizontal"}
+      (om/build-all header (map-indexed #(assoc %2 :idx %1) headers)))))
 
 ;; ---- Data ------------------------------------------------------------------
 
@@ -510,12 +573,16 @@
     (update-loop app-state owner)
     (delete-loop app-state owner)
     (figwheel-reload-loop owner))
-  (will-unmount [_])
+  (will-unmount [_]
+    (bus/unlisten-all owner))
   (render [_]
     (d/div {:class "container"}
       (d/div {:class "row"}
         (d/div {:class "col-md-12"}
           (om/build location-bar (:location-bar app-state))))
+      (d/div {:class "row"}
+        (d/div {:class "col-md-12"}
+          (om/build headers (:headers app-state))))
       (om/build alert/alert (:alert app-state))
       (when-let [doc (:doc app-state)]
         (om/build rep doc)))))

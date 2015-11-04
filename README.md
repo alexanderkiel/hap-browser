@@ -3,6 +3,7 @@ __This software is ALPHA.__
 # HAP Browser
 
 [![Build Status](https://travis-ci.org/alexanderkiel/hap-browser.svg?branch=master)](https://travis-ci.org/alexanderkiel/hap-browser)
+[![Docker Pulls](https://img.shields.io/docker/pulls/akiel/hap-browser.svg)](https://hub.docker.com/r/akiel/hap-browser/)
 
 Generic [Hypermedia Application Protocol][4] (HAP) UI.
 

@@ -13,9 +13,9 @@
                  [ring/ring-core "1.3.2"]
                  [bidi "1.20.2" :exclusions [ring/ring-core]]
                  [compojure "1.3.3"]
-                 [org.omcljs/om "0.9.0" :scope "provided"]
+                 [org.omcljs/om "0.9.0"]
                  [prismatic/plumbing "0.4.4"]
-                 [prismatic/om-tools "0.3.12" :scope "provided"]
+                 [prismatic/om-tools "0.3.12"]
                  [org.clojars.akiel/hap-client-clj "0.2"
                   :exclusions [com.cognitect/transit-clj]]
                  [org.clojars.akiel/async-error "0.1"]]

@@ -346,7 +346,10 @@
                                       :value val))))))
 
 (defn format-type [type]
-  (-> type util/deref-cursor s/explain pr-str))
+  (let [type (util/deref-cursor type)]
+    (if (satisfies? s/Schema type)
+      (pr-str (s/explain type))
+      "<unsupported>")))
 
 (defcomponent data-row [{:keys [key raw-value type error edit] :as item} _]
   (render [_]

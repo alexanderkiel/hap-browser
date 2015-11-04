@@ -16,7 +16,7 @@
                  [org.omcljs/om "0.9.0"]
                  [prismatic/plumbing "0.4.4"]
                  [prismatic/om-tools "0.3.12"]
-                 [org.clojars.akiel/hap-client-clj "0.2"
+                 [org.clojars.akiel/hap-client-clj "0.3-SNAPSHOT"
                   :exclusions [com.cognitect/transit-clj]]
                  [org.clojars.akiel/async-error "0.1"]]
 

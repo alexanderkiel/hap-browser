@@ -61,14 +61,14 @@
   (vec params))
 
 (def Query
-  (assoc hap/Query :params ParamList))
+  (assoc hap/Query (s/optional-key :params) ParamList))
 
 (def QueryList
   [[(s/one Keyword "id") (s/one Query "query")]])
 
 (s/defn convert-queries :- QueryList [queries :- hap/Queries]
   (vec (for [[id query] queries]
-         [id (update query :params convert-params)])))
+         [id (update query :params (fnil convert-params {}))])))
 
 (defn raw-value [x]
   (cond
@@ -454,7 +454,7 @@
                                   (when required "required")
                                   (when (:error param) "has-error"))}
         (d/label {:class "control-label" :for (form-control-id query-key key)}
-                 (kw->label key))
+                 (or (:label param) (kw->label key)))
         (cond
           :else
           (d/input {:class "form-control"
@@ -465,7 +465,7 @@
                     :on-change (value-updater param)}))
         (when-let [error (:error param)]
           (d/span {:class "help-block"} (pr-str error)))
-        (when-let [desc (or (:label param))]
+        (when-let [desc (:desc param)]
           (d/span {:class "help-block"} desc))))))
 
 (defn- build-query-groups [key query]
@@ -478,6 +478,8 @@
   (render [_]
     (d/div {:style {:margin-bottom "10px"}}
       (d/h4 (or (:label query) (kw->label key)))
+      (when-let [desc (:desc query)]
+        (d/p {:class "text-muted"} desc))
       (d/form
         (apply d/div (build-query-groups key query))
         (d/button

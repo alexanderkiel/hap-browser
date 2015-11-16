@@ -150,8 +150,8 @@
                                              (str " Status was " status ".")))))
               (unexpected-error! owner e))))))))
 
-(s/defn execute-query [query :- Query headers :- hap/CustomRequestHeaders]
-  (hap/execute query (map-vals :value (:params query)) {:headers headers}))
+(s/defn execute-query [query :- hap/Query headers :- hap/CustomRequestHeaders]
+  (hap/query query (map-vals :value (:params query)) {:headers headers}))
 
 (defn execute-query-loop
   "Listens on the :execute-query topic. Tries to execute the query."
@@ -214,7 +214,7 @@
       (util/scroll-to-top)
       (go
         (try
-          (let [doc (<? (hap/update (-> doc :links :self) doc))]
+          (let [doc (<? (hap/update (-> doc :links :self) (dissoc doc :queries :forms)))]
             (set-uri-and-doc! app-state (-> doc :links :self) doc))
           (catch js/Error e
             (if-let [ex-data (ex-data e)]

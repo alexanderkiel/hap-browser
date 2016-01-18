@@ -1,0 +1,7 @@
+{
+  "firebase": "hap-browser",
+  "public": "resources/public",
+  "ignore": [
+    "index-dev.html"
+  ]
+}

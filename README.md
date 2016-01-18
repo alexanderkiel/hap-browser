@@ -8,7 +8,7 @@ __This software is ALPHA.__
 Generic [Hypermedia Application Protocol][4] (HAP) UI.
 
 The Hypermedia Application Protocol is self-describing, opening the possibility
-for fully generic UI's suiting humans. With HAP Browser you can discover and 
+for fully generic UI's suiting humans. With HAP Browser you can discover and
 manipulate your API without the need to install anything additional to your
 API. The only thing your API needs are the following [CORS][5] headers, because
 HAP Browser is a Web App accessing your API on a different origin.
@@ -18,22 +18,22 @@ CORS Headers on OPTIONS requests:
     Access-Control-Allow-Origin: *
     Access-Control-Allow-Methods: GET, POST, PUT, DELETE
     Access-Control-Allow-Headers: Accept, If-Match, Content-Type
-    
+
 CORS Headers on all other requests:
 
     Access-Control-Allow-Origin: *
     Access-Control-Expose-Headers: ETag, Location
-    
+
 ## Hosted HAP Browser
 
-There is a [hosted version of HAP Browser][7]. I'll try to keep it running and 
-current. But it's not guarantied. Please ping me on Twitter `@alexander_kiel` 
+There is a [hosted version of HAP Browser][7]. I'll try to keep it running and
+current. But it's not guarantied. Please ping me on Twitter `@alexander_kiel`
 if there are any issues.
 
 There is also an example application called [HAP ToDo][6] available. Just put
-    
+
     http://hap-todo.alexanderkiel.net
-    
+
 into the address bar of HAP Browser.
 
 ## Build
@@ -61,8 +61,8 @@ HAP Browser uses [figwheel][1]
 
     rlwrap lein figwheel
 
-Currently I get many warnings if I start figwheel without doing a `lein clean` 
-first. 
+Currently I get many warnings if I start figwheel without doing a `lein clean`
+first.
 
 ### Frontend State Management and DOM Update
 
@@ -80,4 +80,4 @@ Distributed under the Eclipse Public License, the same as Clojure.
 [4]: <https://github.com/alexanderkiel/hap-spec>
 [5]: <https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS>
 [6]: <https://github.com/alexanderkiel/hap-todo>
-[7]: <http://hap-browser.alexanderkiel.net>
+[7]: <https://hap-browser.firebaseapp.com>

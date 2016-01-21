@@ -100,10 +100,13 @@
       (update :forms (fnil convert-queries {}))
       (assoc :embedded-view (into [] util/make-vals-sequential (:embedded doc)))))
 
-(defn resolve-profile [doc]
+(s/defn fetch [resource headers :- hap/CustomRequestHeaders]
+  (hap/fetch resource {:headers headers}))
+
+(s/defn resolve-profile [doc headers :- hap/CustomRequestHeaders]
   (go-try
     (if-let [profile-link (-> doc :links :profile)]
-      (assoc-in doc [:embedded :profile] (<? (hap/fetch profile-link)))
+      (assoc-in doc [:embedded :profile] (<? (fetch profile-link headers)))
       doc)))
 
 (defn- to-uri [resource]
@@ -120,8 +123,8 @@
 
 (s/defn fetch-and-resolve-profile [resource headers :- hap/CustomRequestHeaders]
   (go-try
-    (let [doc (<? (hap/fetch resource {:headers headers}))]
-      (<? (resolve-profile doc)))))
+    (let [doc (<? (fetch resource headers))]
+      (<? (resolve-profile doc headers)))))
 
 (s/defn mk-headers :- hap/CustomRequestHeaders
   [headers :- [{:name Str :value Str}]]
@@ -205,6 +208,9 @@
                 (alert! owner :danger (str "Create error: " (.-message e))))
               (unexpected-error! owner e))))))))
 
+(s/defn execute-update [resource representation :- hap/Representation headers :- hap/CustomRequestHeaders]
+  (hap/update resource representation {:headers headers}))
+
 (defn update-loop
   "Listens on the :update topic."
   [app-state owner]
@@ -214,7 +220,7 @@
       (util/scroll-to-top)
       (go
         (try
-          (let [doc (<? (hap/update (-> doc :links :self) (dissoc doc :queries :forms)))]
+          (let [doc (<? (execute-update (-> doc :links :self) (dissoc doc :queries :forms) (mk-headers (:headers @app-state))))]
             (set-uri-and-doc! app-state (-> doc :links :self) doc))
           (catch js/Error e
             (if-let [ex-data (ex-data e)]
@@ -222,6 +228,9 @@
                 (set-uri-and-doc! app-state nil doc)
                 (alert! owner :danger (str "Update error: " (.-message e))))
               (unexpected-error! owner e))))))))
+
+(s/defn execute-delete [resource headers :- hap/CustomRequestHeaders]
+  (hap/delete resource {:headers headers}))
 
 (defn delete-loop
   "Listens on the :delete topic. Tries to delete the resource."
@@ -232,10 +241,10 @@
       (util/scroll-to-top)
       (go
         (try
-          (<? (hap/delete resource))
+          (<? (execute-delete resource (mk-headers (:headers @app-state))))
           (alert! owner :success (str "Successfully deleted " (to-uri resource) "."))
           (when up
-            (set-uri-and-doc! app-state up (<? (hap/fetch up))))
+            (set-uri-and-doc! app-state up (<? (fetch up (mk-headers (:headers @app-state))))))
           (catch js/Error e
             (if-let [ex-data (ex-data e)]
               (if-let [doc (:body ex-data)]

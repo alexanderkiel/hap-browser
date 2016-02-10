@@ -76,14 +76,15 @@
     (keyword? x) (name x)
     :else (pr-str x)))
 
-(defn create-data [doc]
-  (reduce-kv
-    (fn [r k v]
-      (let [find-schema (get-in doc [:embedded :profile :data :schema k])]
-        (conj r (assoc-when {:key k :value v :raw-value (raw-value v)}
-                            :type find-schema))))
-    []
-    (:data doc)))
+(defn build-data-view [doc]
+  (let [schema (get-in doc [:embedded :profile :data :schema])]
+    (reduce-kv
+      (fn [r k v]
+        (let [schema (or (schema k) (schema (s/optional-key k)))]
+          (conj r (assoc-when {:key k :value v :raw-value (raw-value v)}
+                              :type schema))))
+      []
+      (:data doc))))
 
 (defn- build-links-view [links]
   (-> (into [] util/make-vals-sequential (select-keys links [:up :self]))
@@ -94,7 +95,7 @@
   because we need lists of things instead of maps for om."
   [doc]
   (-> doc
-      (assoc :data-view (create-data doc))
+      (assoc :data-view (build-data-view doc))
       (assoc :links-view (build-links-view (:links doc)))
       (update :queries (fnil convert-queries {}))
       (update :forms (fnil convert-queries {}))

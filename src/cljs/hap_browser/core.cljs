@@ -81,7 +81,7 @@
   (let [schema (get-in doc [:embedded :profile :data :schema])]
     (reduce-kv
       (fn [r k v]
-        (let [schema (or (schema k) (schema (s/optional-key k)))]
+        (let [schema (or (get schema k) (get schema (s/optional-key k)))]
           (conj r (assoc-when {:key k :value v :raw-value (raw-value v)}
                               :type schema))))
       []

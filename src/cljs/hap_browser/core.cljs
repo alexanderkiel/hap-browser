@@ -74,6 +74,7 @@
   (cond
     (string? x) x
     (keyword? x) (name x)
+    (coll? x) (str/join ", " (map raw-value x))
     :else (pr-str x)))
 
 (defn build-data-view [doc]

@@ -13,7 +13,8 @@
 (defn set-matcher [schema]
   (when (set? schema)
     (fn [x]
-      (set (str/split (str/trim x) #"\s*,\s*")))))
+      (when x
+        (set (str/split (str/trim x) #"\s*,\s*"))))))
 
 (defn coercion-matcher [schema]
   (or (c/+string-coercions+ schema)

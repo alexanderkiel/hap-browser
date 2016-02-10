@@ -336,11 +336,6 @@
 (defn form-control-id [query-key key]
   (str (kw->id query-key) "_" (kw->id key)))
 
-(defn build-class
-  "Builds a CSS class string out of possible nil components."
-  [init x & xs]
-  (str/join " " (apply conj-when [init] x xs)))
-
 (defn value-updater [param]
   (fn [x]
     (let [raw-val (util/target-value x)
@@ -366,7 +361,7 @@
       (d/td (pr-str key))
       (d/td
         (if (and edit type)
-          (d/div {:class (build-class "form-group" (when error "has-error"))}
+          (d/div {:class (cond-> "form-group" error (str " has-error"))}
             (cond
               :else
               (d/input {:class "form-control"
@@ -459,9 +454,9 @@
 (defcomponent query-group [[key param] _ {:keys [query-key]}]
   (render [_]
     (let [required (not (:optional param))]
-      (d/div {:class (build-class "form-group"
-                                  (when required "required")
-                                  (when (:error param) "has-error"))}
+      (d/div {:class (cond-> "form-group"
+                       required (str " required")
+                       (:error param) (str " has-error"))}
         (d/label {:class "control-label" :for (form-control-id query-key key)}
                  (or (:label param) (kw->label key)))
         (cond

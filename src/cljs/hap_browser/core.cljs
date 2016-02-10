@@ -324,7 +324,7 @@
   (will-unmount [_]
     (bus/unlisten-all owner))
   (render [_]
-    (apply d/div {:class "form-horizontal"}
+    (d/div {:class "form-horizontal"}
       (om/build-all header (map-indexed #(assoc %2 :idx %1) headers)))))
 
 ;; ---- Data ------------------------------------------------------------------
@@ -378,7 +378,7 @@
   (render [_]
     (d/table {:class "table table-bordered table-hover"}
       (d/thead (d/tr (d/th "key") (d/th "value")))
-      (apply d/tbody (om/build-all data-row data)))))
+      (d/tbody (om/build-all data-row data)))))
 
 ;; ---- Links -----------------------------------------------------------------
 
@@ -397,7 +397,7 @@
 
 (defcomponent link-row-group [[rel resources] owner]
   (render [_]
-    (apply d/tbody
+    (d/tbody
       (render-first-link-row [rel (count resources) (first resources)] owner)
       (map #(render-link-row % owner) (rest resources)))))
 
@@ -429,13 +429,13 @@
   (render [_]
     (if (empty? reps)
       (d/tbody (render-empty-embedded-row rel))
-      (apply d/tbody
+      (d/tbody
         (render-first-embedded-row [rel (count reps) (first reps)] owner)
         (map #(render-embedded-row % owner) (rest reps))))))
 
 (defcomponent embedded-table [embedded _]
   (render [_]
-    (apply d/table {:class "table table-bordered table-hover"}
+    (d/table {:class "table table-bordered table-hover"}
       (d/thead (d/tr (d/th "rel") (d/th "target")))
       (om/build-all embedded-row-group embedded))))
 
@@ -485,7 +485,7 @@
       (when-let [desc (:desc query)]
         (d/p {:class "text-muted"} desc))
       (d/form
-        (apply d/div (build-query-groups key query))
+        (d/div (build-query-groups key query))
         (d/button
           {:class "btn btn-primary" :type "submit"
            :on-click (h (bus/publish! owner topic [key (to-form @query)]))}
@@ -493,7 +493,7 @@
 
 (defcomponent query-list [queries _ opts]
   (render [_]
-    (apply d/div (om/build-all query queries {:opts opts}))))
+    (d/div (om/build-all query queries {:opts opts}))))
 
 ;; ---- Rep -------------------------------------------------------------------
 
